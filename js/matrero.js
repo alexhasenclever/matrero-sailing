@@ -15,13 +15,13 @@ const EXTRA = {
     all: 'All', other: 'More', showAll: 'Show all photos', showLess: 'Show fewer',
     sCrew: 'Crew', stRaces: 'regattas raced', stGold: 'gold · 1st', stSilver: 'silver · 2nd', stBronze: 'bronze · 3rd', stSeasons: 'seasons', stSud: 'South American titles',
     regattas: (n) => n + (n === 1 ? ' regatta' : ' regattas'), winsN: (n) => n + (n === 1 ? ' win' : ' wins'), podN: (n) => n + (n === 1 ? ' podium' : ' podiums'),
-    chapter: ['Chapter I', 'Chapter II', 'Chapter III'], times: '×', close: 'Close' },
+    press: 'Press', archive: 'More', months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], chapter: ['Chapter I', 'Chapter II', 'Chapter III'], times: '×', close: 'Close' },
   es: { menu: 'Menú', scroll: 'Bajar', galleryKicker: 'En el agua', resultsKicker: 'Resultados', historyKicker: 'Desde 1970',
     honoursTitle: 'Palmarés sudamericano', honoursSub: 'Victorias en Sudamérica, 1995 – 2016',
     all: 'Todas', other: 'Más', showAll: 'Ver todas las fotos', showLess: 'Ver menos',
     sCrew: 'Tripulación', stRaces: 'regatas corridas', stGold: 'oro · 1°', stSilver: 'plata · 2°', stBronze: 'bronce · 3°', stSeasons: 'temporadas', stSud: 'títulos sudamericanos',
     regattas: (n) => n + (n === 1 ? ' regata' : ' regatas'), winsN: (n) => n + (n === 1 ? ' victoria' : ' victorias'), podN: (n) => n + (n === 1 ? ' podio' : ' podios'),
-    chapter: ['Capítulo I', 'Capítulo II', 'Capítulo III'], times: '×', close: 'Cerrar' }
+    press: 'Prensa', archive: 'Más notas', months: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], chapter: ['Capítulo I', 'Capítulo II', 'Capítulo III'], times: '×', close: 'Cerrar' }
 };
 
 let lang = 'en';
@@ -147,6 +147,19 @@ function fillLines() {
 window.addEventListener('scroll', () => requestAnimationFrame(fillLines), { passive: true });
 window.addEventListener('resize', fillLines);
 
+/* ---------------- press ---------------- */
+const EXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>';
+function renderPress(t) {
+  const groups = [];
+  (window.PRESS || []).forEach(([y, d, out, title, url]) => {
+    let g = groups.find((x) => x.y === y); if (!g) groups.push(g = { y, items: [] });
+    g.items.push({ d, out, title, url });
+  });
+  const fmt = (d) => { if (!d) return ''; const [, m, day] = d.split('-'); return (+day) + ' ' + t.months[+m - 1]; };
+  $('#press-list').innerHTML = groups.map((g) => `<div class="pyear"><h3>${g.y === 'archive' ? esc(t.archive) : g.y}</h3><ul class="plist">${g.items.map((i) =>
+    `<li><a href="${esc(i.url)}" target="_blank" rel="noopener"><span class="pout">${esc(i.out)}</span><span class="pt">${esc(i.title)}</span><span class="pd"><span>${fmt(i.d)}</span>${EXT}</span></a></li>`).join('')}</ul></div>`).join('');
+}
+
 /* ---------------- render ---------------- */
-function renderAll() { const t = T(); renderGallery(t); renderResults(t); renderHistory(t); }
+function renderAll() { const t = T(); renderGallery(t); renderResults(t); renderHistory(t); renderPress(t); }
 document.addEventListener('langchange', (e) => { lang = e.detail; renderAll(); });
