@@ -1,0 +1,47 @@
+/* Mobile / iPhone readability overrides (inline styles need !important) */
+html{-webkit-text-size-adjust:100%}
+@media (max-width:700px){
+  /* Header: logo + language on row 1, nav on row 2, compact */
+  header{padding:14px 16px 10px!important;gap:6px 12px!important;align-items:center!important;
+    background:linear-gradient(180deg,rgba(10,22,34,.92) 0%,rgba(10,22,34,.75) 70%,rgba(10,22,34,0) 100%)!important}
+  header>a:first-child{font-size:21px!important}
+  header>div{display:contents!important}
+  header [role="group"]{order:2;font-size:11px!important}
+  header .lang-btn{padding:8px 12px;min-width:40px}
+  header nav{order:3;width:100%;flex-wrap:nowrap!important;justify-content:space-between;gap:0!important;
+    font-size:12px!important;letter-spacing:.08em!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  header nav::-webkit-scrollbar{display:none}
+  header nav>a,header nav .dd>a{padding:10px 6px!important;white-space:nowrap}
+  header nav svg,.dd-menu{display:none!important}
+
+  /* Home: boat panels — text in flow at the bottom, stronger shade */
+  a.boat{height:auto!important;min-height:100svh;display:flex!important;flex-direction:column;justify-content:flex-end}
+  a.boat>div:not(.reveal){background:linear-gradient(180deg,rgba(10,22,34,.35) 0%,rgba(10,22,34,.2) 30%,rgba(10,22,34,.85) 62%,#0A1622 100%)!important}
+  a.boat .reveal{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;
+    padding:150px 20px 64px;gap:14px!important}
+  a.boat h1,a.boat h2{font-size:clamp(64px,19vw,96px)!important}
+  .boat-img{transform:none!important}
+
+  /* Matrero hero: content in flow under the header */
+  section[style*="height: 760px"]{height:auto!important;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end}
+  section[style*="height: 760px"]>div:not([style*="inset"]){position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;
+    padding:170px 20px 40px;gap:22px!important}
+  section[style*="height: 760px"]>div[style*="inset"]{background:linear-gradient(180deg,rgba(10,22,34,.45) 0%,rgba(10,22,34,.55) 35%,rgba(10,22,34,.92) 70%,#0A1622 100%)!important}
+  section[style*="height: 760px"] h1{font-size:clamp(64px,19vw,96px)!important}
+
+  /* Shared type tweaks */
+  [style*="letter-spacing: 0.22em"]{letter-spacing:.14em!important;line-height:1.5}
+  p{font-size:17px!important;line-height:1.6!important}
+  h2[style*="font-size: 72px"]{font-size:52px!important}
+  section[style*="padding: 96px"],section[style*="padding: 112px"]{padding-top:64px!important;padding-bottom:64px!important}
+  section[style*="padding: 120px 0"]{padding-top:72px!important}
+
+  /* Gallery slideshow: fit the photo instead of a tall black box */
+  div[style*="height: 620px"]{height:auto!important;aspect-ratio:4/3}
+  #prev,#next{width:44px!important;height:44px!important}
+  #prev{left:8px!important}#next{right:8px!important}
+
+  /* Section sub-nav */
+  nav[aria-label="Matrero"]{gap:0!important;padding:4px 8px!important;font-size:12px!important;letter-spacing:.1em!important;flex-wrap:nowrap!important}
+  nav[aria-label="Matrero"] a{padding:12px 12px!important}
+}
