@@ -1,5 +1,5 @@
-Matrero & Encounter Racing – static website
-==========================================
+Matrero Sailing Team – static website
+=====================================
 Open index.html in a browser, or upload the whole folder to any web host
 (Netlify, GitHub Pages, cPanel, S3, etc.). No build step or server code needed.
 
