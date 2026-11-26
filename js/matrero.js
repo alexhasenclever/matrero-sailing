@@ -13,13 +13,13 @@ const EXTRA = {
   en: { menu: 'Menu', scroll: 'Scroll down', galleryKicker: 'On the water', resultsKicker: 'Results', historyKicker: 'Since 1970',
     honoursTitle: 'South American honours', honoursSub: 'Wins in South America, 1995 – 2016',
     all: 'All', other: 'More', showAll: 'Show all photos', showLess: 'Show fewer',
-    sWins: 'wins', sPodiums: 'podiums', sSud: 'South American titles', sYears: 'years racing',
+    sCrew: 'Crew', stRaces: 'regattas raced', stGold: 'gold · 1st', stSilver: 'silver · 2nd', stBronze: 'bronze · 3rd', stSeasons: 'seasons', stSud: 'South American titles',
     regattas: (n) => n + (n === 1 ? ' regatta' : ' regattas'), winsN: (n) => n + (n === 1 ? ' win' : ' wins'), podN: (n) => n + (n === 1 ? ' podium' : ' podiums'),
     chapter: ['Chapter I', 'Chapter II', 'Chapter III'], times: '×', close: 'Close' },
   es: { menu: 'Menú', scroll: 'Bajar', galleryKicker: 'En el agua', resultsKicker: 'Resultados', historyKicker: 'Desde 1970',
     honoursTitle: 'Palmarés sudamericano', honoursSub: 'Victorias en Sudamérica, 1995 – 2016',
     all: 'Todas', other: 'Más', showAll: 'Ver todas las fotos', showLess: 'Ver menos',
-    sWins: 'victorias', sPodiums: 'podios', sSud: 'títulos sudamericanos', sYears: 'años compitiendo',
+    sCrew: 'Tripulación', stRaces: 'regatas corridas', stGold: 'oro · 1°', stSilver: 'plata · 2°', stBronze: 'bronce · 3°', stSeasons: 'temporadas', stSud: 'títulos sudamericanos',
     regattas: (n) => n + (n === 1 ? ' regata' : ' regatas'), winsN: (n) => n + (n === 1 ? ' victoria' : ' victorias'), podN: (n) => n + (n === 1 ? ' podio' : ' podios'),
     chapter: ['Capítulo I', 'Capítulo II', 'Capítulo III'], times: '×', close: 'Cerrar' }
 };
@@ -39,17 +39,6 @@ $('#burger').addEventListener('click', () => {
   $('#burger').setAttribute('aria-expanded', open);
 });
 $('#menu').addEventListener('click', (e) => { if (e.target.closest('a')) { document.body.classList.remove('menu-open'); $('#burger').setAttribute('aria-expanded', 'false'); } });
-
-/* ---------------- stats ---------------- */
-function renderStats(t) {
-  let wins = 0, pods = 0, sud = 0;
-  M.resultsData().forEach((y) => {
-    (y.big || []).forEach((r) => { if (r.k === 1) wins++; if ([1, 2, 3].includes(r.k)) pods++; });
-    (y.small || []).forEach((r) => { wins++; pods++; if (r.title.en === 'South American Offshore Championship') sud++; });
-  });
-  const items = [[wins, t.sWins], [pods, t.sPodiums], [sud, t.sSud], [new Date().getFullYear() - 1971, t.sYears]];
-  $('#stats-grid').innerHTML = items.map(([n, l]) => `<div class="stat"><b data-n="${n}">${n}</b><span>${esc(l)}</span></div>`).join('');
-}
 
 /* ---------------- gallery ---------------- */
 const G = { filter: 'all', expanded: false, lightbox: null };
@@ -92,28 +81,22 @@ G.lightbox.on('uiRegister', () => {
 G.lightbox.init();
 
 /* ---------------- results ---------------- */
-const R = { year: null };
-const MEDAL = { 1: 'p1', 2: 'p2', 3: 'p3', s: 'ps' };
-const TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M9 17h6"/></svg>';
-function placeHTML(r) {
-  const p = L(r.place), m = /^(\d+)(.*)$/.exec(p);
-  return `<span class="place ${MEDAL[r.k] || 'p0'}"><i></i>${m ? `<b>${m[1]}</b>${esc(m[2])}` : esc(p)}</span>`;
-}
+const MEDAL = { 1: 'm1', 2: 'm2', 3: 'm3' };
 function renderResults(t) {
   const data = M.resultsData();
-  const recent = data.filter((y) => y.big);
-  if (!R.year) R.year = recent[0].year;
-  $('#r-tabs').innerHTML = recent.map((y) => {
-    const w = y.big.filter((r) => r.k === 1).length;
-    return `<button type="button" class="season" role="tab" data-y="${y.year}" aria-selected="${R.year === y.year}"><b>${y.year}</b><span>${w ? t.winsN(w) : t.regattas(y.big.length)}</span></button>`;
-  }).join('');
-  const season = recent.find((y) => y.year === R.year);
-  const wins = season.big.filter((r) => r.k === 1).length, pods = season.big.filter((r) => [1, 2, 3].includes(r.k)).length;
-  $('#r-sum').textContent = [t.regattas(season.big.length), t.winsN(wins), t.podN(pods)].join(' · ');
-  $('#r-cards').innerHTML = season.big.map((r) => `<article class="rcard">
-      <div class="rmedia${r.img ? '' : ' empty'}">${r.img ? `<img src="${src(r.img)}" alt="${esc(L(r.title))}" loading="lazy">` : TROPHY}${placeHTML(r)}</div>
-      <div class="rbody"><span class="rwhen">${esc(L(r.when))}</span><h4>${esc(L(r.title))}</h4><p>${esc(L(r.note))}</p></div>
-    </article>`).join('');
+  let races = 0, g = 0, sv = 0, br = 0, sud = 0;
+  data.forEach((y) => {
+    (y.big || []).forEach((r) => { if (r.k === 's') return; races++; if (r.k === 1) g++; if (r.k === 2) sv++; if (r.k === 3) br++; });
+    (y.small || []).forEach((r) => { races++; g++; if (r.title.en === 'South American Offshore Championship') sud++; });
+  });
+  const tiles = [[races, t.stRaces, ''], [g, t.stGold, 'm1'], [sv, t.stSilver, 'm2'], [br, t.stBronze, 'm3'], [data.length, t.stSeasons, ''], [sud, t.stSud, '']];
+  $('#r-stats').innerHTML = tiles.map(([n, l, m]) => `<div class="rstat"><b>${m ? `<i class="medal ${m}"></i>` : ''}${n}</b><span>${esc(l)}</span></div>`).join('');
+
+  $('#r-years').innerHTML = data.filter((y) => y.big).map((y) => `<div class="ryear"><h3>${y.year}</h3>${y.big.map((r) => `<div class="rrow">
+      ${r.img ? `<div class="rimg"><img src="${src(r.img)}" alt="${esc(L(r.title))}" loading="lazy"></div>` : ''}
+      <div class="rtxt"><div class="rmeta"><span class="pill">${MEDAL[r.k] ? `<i class="medal ${MEDAL[r.k]}"></i>` : ''}${esc(L(r.place))}</span><span class="rwhen">${esc(L(r.when))}</span></div>
+      <h4>${esc(L(r.title))}</h4><p>${esc(L(r.note))}</p></div>
+    </div>`).join('')}</div>`).join('');
 
   // Honours board: older wins grouped by race
   const by = {};
@@ -128,7 +111,6 @@ function renderResults(t) {
       <div class="hyears">${h.years.slice().sort().map((y) => `<span>${y}</span>`).join('')}</div></div>
     </div>`).join('');
 }
-$('#r-tabs').addEventListener('click', (e) => { const b = e.target.closest('.season'); if (!b) return; R.year = b.dataset.y; renderResults(T()); });
 
 /* ---------------- history timeline ---------------- */
 let io;
@@ -166,5 +148,5 @@ window.addEventListener('scroll', () => requestAnimationFrame(fillLines), { pass
 window.addEventListener('resize', fillLines);
 
 /* ---------------- render ---------------- */
-function renderAll() { const t = T(); renderStats(t); renderGallery(t); renderResults(t); renderHistory(t); }
+function renderAll() { const t = T(); renderGallery(t); renderResults(t); renderHistory(t); }
 document.addEventListener('langchange', (e) => { lang = e.detail; renderAll(); });
